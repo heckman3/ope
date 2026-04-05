@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horloge en mots</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: #111;
+      color: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .time-now {
+      font-size: 12vw;   /* scales with screen width */
+      text-align: center;
+      line-height: 1.2;
+    }
+  </style>
+</head>
+<body>
+  <p class="time-now" id="timeWords">Chargement…</p>
+
+  <script>
+    function numberToFrench(n, feminine = false) {
+      const units = [
+        "zéro","un","deux","trois","quatre","cinq","six","sept","huit","neuf",
+        "dix","onze","douze","treize","quatorze","quinze","seize","dix-sept",
+        "dix-huit","dix-neuf"
+      ];
+      const tens = ["", "", "vingt", "trente", "quarante", "cinquante"];
+
+      if (n < 20) {
+        if (n === 1 && feminine) return "une";
+        return units[n];
+      }
+      const t = Math.floor(n / 10);
+      const u = n % 10;
+      const tenWord = tens[t];
+      if (u === 0) return tenWord;
+      if (u === 1) return tenWord + " et " + (feminine ? "une" : "un");
+      return tenWord + "-" + units[u];
+    }
+
+    function hoursToFrench(h) {
+      if (h === 0) return "zéro heure";
+      if (h === 1) return "une heure";
+      return numberToFrench(h, true) + " heures";
+    }
+
+    function frenchTimeWords(date) {
+      let h = date.getHours();
+      let m = date.getMinutes();
+
+      // Special cases for exact times
+      if (m === 0) {
+        if (h === 0) return "minuit";
+        if (h === 12) return "midi";
+        return hoursToFrench(h);
+      }
+
+      // Spoken French style
+      if (m === 15) return hoursToFrench(h) + " et quart";
+      if (m === 30) return hoursToFrench(h) + " et demie";
+      if (m === 45) {
+        // "moins le quart" means next hour minus 15
+        let nextHour = (h + 1) % 24;
+        if (nextHour === 0) return "minuit moins le quart";
+        if (nextHour === 12) return "midi moins le quart";
+        return hoursToFrench(nextHour) + " moins le quart";
+      }
+
+      // Default: numeric minutes
+      return hoursToFrench(h) + " " + numberToFrench(m, true);
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("timeWords").textContent = frenchTimeWords(now);
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
+french clock.html
+Displaying french clock.html.
